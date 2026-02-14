@@ -1,194 +1,236 @@
-import React from 'react';
+// src/pages/LandingPage.tsx
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Zap, Eye, Brain, ArrowRight, Github, Code2 } from 'lucide-react';
+import { 
+  Shield, 
+  Zap, 
+  Terminal, 
+  Upload, 
+  Github, 
+  Search, 
+  ChevronRight, 
+  FileCode, 
+  CheckCircle2,
+  Cpu,
+  Lock
+} from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 
-export const LandingPage: React.FC<{ onGetStarted: () => void }> = ({ onGetStarted }) => {
-  return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Animated background grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f12_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f12_1px,transparent_1px)] bg-[size:64px_64px]"></div>
-      
-      {/* Scanline overlay */}
-      <div className="scanline absolute inset-0 pointer-events-none"></div>
+interface LandingPageProps {
+  onGetStarted: () => void;
+}
 
-      {/* Header */}
-      <header className="relative z-10 border-b border-border/50 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-2"
-          >
-            <Shield className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              SentinelAI
+export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+  const [isHovering, setIsHovering] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-background relative overflow-hidden font-mono selection:bg-primary/30">
+      {/* Visual background layers */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+      <div className="hero-gradient absolute inset-0 pointer-events-none"></div>
+      <div className="scanline absolute inset-0 pointer-events-none opacity-10"></div>
+
+      {/* Navigation */}
+      <header className="relative z-50 border-b border-border/40 backdrop-blur-md">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded border border-primary/20">
+              <Shield className="h-5 w-5 text-primary pulse-glow" />
+            </div>
+            <span className="text-lg font-bold tracking-tight uppercase">
+              Sentinel<span className="text-primary">AI</span>
             </span>
-          </motion.div>
+          </div>
           
-          <div className="flex items-center gap-4">
-            <ThemeSwitcher />
-            <Button variant="ghost" size="sm" className="hidden md:flex">
-              <Github className="mr-2 h-4 w-4" />
-              GitHub
-            </Button>
-            <Button onClick={onGetStarted} className="breathing-border bg-primary text-primary-foreground hover:bg-primary/90">
-              Get Started
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+          <div className="flex items-center gap-4 md:gap-8">
+            <nav className="hidden md:flex items-center gap-6 text-[10px] uppercase tracking-widest text-muted-foreground">
+              <a href="#" className="hover:text-primary transition-colors flex items-center gap-1">
+                <Lock className="h-3 w-3" /> Security_DB
+              </a>
+              <a href="#" className="hover:text-primary transition-colors flex items-center gap-1">
+                <Cpu className="h-3 w-3" /> Core_Engine
+              </a>
+            </nav>
+            <div className="flex items-center gap-3">
+              <ThemeSwitcher />
+              <Button variant="outline" size="sm" className="hidden sm:flex border-primary/20 hover:bg-primary/5 text-xs">
+                <Github className="h-3.5 w-3.5 mr-2" />
+                Source
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 container mx-auto px-4 py-20 md:py-32">
-        <div className="max-w-4xl mx-auto text-center">
+      <main className="relative z-10 container mx-auto px-6 pt-16 pb-24">
+        <div className="flex flex-col items-center text-center mb-12">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            className="flex items-center gap-2 px-3 py-1 rounded border border-primary/30 bg-primary/5 text-[10px] text-primary mb-8"
           >
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent glitch-hover">
-                Autonomous Code Review
-              </span>
-              <br />
-              <span className="text-foreground">Powered by AI</span>
-            </h1>
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            LOGS: ANONYMOUS_ACCESS_GRANTED
           </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto"
-          >
-            Predict bug risks, detect vulnerabilities, and improve code quality with AI-driven insights in real-time.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Button 
-              size="lg" 
-              onClick={onGetStarted}
-              className="text-lg px-8 py-6 breathing-border bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-            >
-              <Zap className="mr-2 h-5 w-5" />
-              Start Scanning
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="text-lg px-8 py-6 glass-card-hover"
-            >
-              <Code2 className="mr-2 h-5 w-5" />
-              View Demo
-            </Button>
-          </motion.div>
+          <h1 className="text-5xl md:text-8xl font-black mb-6 tracking-tighter leading-none">
+            AUDIT YOUR CODE<br />
+            <span className="text-primary glitch-hover italic">IN REALTIME.</span>
+          </h1>
+          <p className="text-muted-foreground max-w-xl text-sm md:text-base leading-relaxed mb-10 font-sans">
+            Drop your project folder or paste a repository URL. No login, no friction. 
+            Receive a detailed security report and your <span className="text-primary">Sentinel Score</span> in seconds.
+          </p>
         </div>
 
-        {/* Feature Cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="grid md:grid-cols-3 gap-6 mt-24"
+        {/* Central Terminal / Scanner UI */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-5xl mx-auto"
         >
-          <FeatureCard
-            icon={<Brain className="h-8 w-8" />}
-            title="ML Risk Prediction"
-            description="Predict bug density and failure hotspots using advanced machine learning models"
-            color="primary"
-          />
-          <FeatureCard
-            icon={<Eye className="h-8 w-8" />}
-            title="Vulnerability Detection"
-            description="Real-time security smell detection with radar visualization of risk categories"
-            color="secondary"
-          />
-          <FeatureCard
-            icon={<Zap className="h-8 w-8" />}
-            title="AI Code Chat"
-            description="Get instant improvement suggestions and refactored code blocks through AI chat"
-            color="accent"
-          />
+          <div 
+            className={`relative transition-all duration-700 rounded-lg border ${
+              isHovering 
+                ? 'border-primary shadow-[0_0_60px_rgba(0,255,255,0.15)] bg-primary/[0.02]' 
+                : 'border-border bg-card/40'
+            } backdrop-blur-xl overflow-hidden`}
+            onDragOver={() => setIsHovering(true)}
+            onDragLeave={() => setIsHovering(false)}
+          >
+            {/* Terminal Top Bar */}
+            <div className="bg-muted/40 border-b border-border p-3 flex items-center justify-between">
+              <div className="flex gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-border"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-border"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-border"></div>
+              </div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                <Terminal className="h-3 w-3" />
+                Scanner_Session:0x4F2A
+              </div>
+              <div className="w-12"></div>
+            </div>
+
+            {/* Terminal Body / Drop Zone */}
+            <div className="p-10 md:p-20 relative flex flex-col items-center justify-center min-h-[450px]">
+              {/* The "Scanning Beam" animation */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="w-full h-[15%] bg-gradient-to-b from-primary/20 to-transparent animate-scan-fast absolute top-0 opacity-40"></div>
+              </div>
+
+              <div className="relative z-10 flex flex-col items-center gap-10 w-full max-w-md">
+                <motion.div 
+                  animate={isHovering ? { scale: 1.1, rotate: 5 } : { scale: 1, rotate: 0 }}
+                  className="p-8 rounded-2xl bg-primary/5 border border-dashed border-primary/40"
+                >
+                  <Upload className="h-16 w-16 text-primary" />
+                </motion.div>
+                
+                <div className="space-y-6 w-full text-center">
+                  <div className="space-y-2">
+                    <h3 className="text-2xl font-bold tracking-tight uppercase">Analyze Local Files</h3>
+                    <p className="text-xs text-muted-foreground">Supports .ZIP or individual source files</p>
+                  </div>
+
+                  <div className="flex flex-col gap-4">
+                    <Button 
+                      onClick={onGetStarted}
+                      className="w-full py-7 text-lg bg-primary text-primary-foreground hover:opacity-90 font-bold transition-all"
+                    >
+                      CHOOSE DIRECTORY
+                    </Button>
+                    
+                    <div className="flex items-center gap-4 py-2">
+                      <div className="h-[1px] flex-1 bg-border/50"></div>
+                      <span className="text-[10px] text-muted-foreground uppercase font-bold">Remote Import</span>
+                      <div className="h-[1px] flex-1 bg-border/50"></div>
+                    </div>
+
+                    <div className="relative group/input">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-primary transition-colors" />
+                      <input 
+                        type="text" 
+                        placeholder="https://github.com/user/repository"
+                        className="w-full bg-background/50 border border-border rounded-md py-4 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-all font-mono"
+                      />
+                      <Button variant="ghost" className="absolute right-2 top-1/2 -translate-y-1/2 hover:text-primary">
+                        <ChevronRight className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Value Props / Stats Post-Scan */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 px-4">
+            <div className="flex items-center gap-4 group">
+              <div className="p-3 rounded bg-primary/5 border border-primary/10 group-hover:border-primary/40 transition-colors">
+                <CheckCircle2 className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider">Sentinel Score</h4>
+                <p className="text-[11px] text-muted-foreground font-sans">0-100 rating based on bug density.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 group">
+              <div className="p-3 rounded bg-primary/5 border border-primary/10 group-hover:border-primary/40 transition-colors">
+                <FileCode className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider">Logic Analysis</h4>
+                <p className="text-[11px] text-muted-foreground font-sans">Contextual reviews, not just linting.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 group">
+              <div className="p-3 rounded bg-primary/5 border border-primary/10 group-hover:border-primary/40 transition-colors">
+                <Zap className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider">Auto-Fixes</h4>
+                <p className="text-[11px] text-muted-foreground font-sans">One-click refactor code blocks.</p>
+              </div>
+            </div>
+          </div>
         </motion.div>
-      </section>
+      </main>
 
-      {/* Stats Section */}
-      <section className="relative z-10 container mx-auto px-4 py-16">
-        <div className="glass-card rounded-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8">
-          <StatCard number="99.8%" label="Detection Rate" />
-          <StatCard number="<10ms" label="Scan Speed" />
-          <StatCard number="1M+" label="Lines Analyzed" />
-          <StatCard number="24/7" label="Monitoring" />
-        </div>
-      </section>
-
-      {/* Live Vulnerability Ticker */}
-      <section className="relative z-10 border-t border-border/50 bg-card/30 backdrop-blur-sm overflow-hidden">
-        <div className="py-4 flex items-center gap-8 ticker-scroll">
-          {[...Array(20)].map((_, i) => (
-            <div key={i} className="flex items-center gap-2 whitespace-nowrap">
-              <span className="h-2 w-2 rounded-full bg-destructive pulse-glow"></span>
-              <span className="text-sm text-muted-foreground">
-                {vulnerabilities[i % vulnerabilities.length]}
-              </span>
+      {/* System Status Footer Ticker */}
+      <div className="fixed bottom-0 w-full border-t border-border/40 bg-background/95 backdrop-blur-md py-2.5 z-50 overflow-hidden">
+        <div className="ticker-scroll">
+           {statusMessages.map((msg, i) => (
+            <div key={i} className="flex items-center gap-2 whitespace-nowrap px-8">
+              <span className="h-1 w-1 rounded-full bg-primary shadow-[0_0_4px_rgba(0,255,255,1)]"></span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">{msg}</span>
+            </div>
+          ))}
+          {/* Duplicate for infinite loop */}
+          {statusMessages.map((msg, i) => (
+            <div key={`dup-${i}`} className="flex items-center gap-2 whitespace-nowrap px-8">
+              <span className="h-1 w-1 rounded-full bg-primary"></span>
+              <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground">{msg}</span>
             </div>
           ))}
         </div>
-      </section>
-    </div>
-  );
-};
-
-const FeatureCard: React.FC<{
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  color: 'primary' | 'secondary' | 'accent';
-}> = ({ icon, title, description, color }) => {
-  const colorClasses = {
-    primary: 'text-primary border-primary/20',
-    secondary: 'text-secondary border-secondary/20',
-    accent: 'text-accent border-accent/20',
-  };
-
-  return (
-    <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      className="glass-card rounded-xl p-6 border-2 hover:border-current transition-all duration-300"
-    >
-      <div className={`${colorClasses[color]} mb-4`}>
-        {icon}
       </div>
-      <h3 className="text-xl font-bold mb-2">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
-    </motion.div>
+    </div>
   );
 };
 
-const StatCard: React.FC<{ number: string; label: string }> = ({ number, label }) => (
-  <div className="text-center">
-    <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
-      {number}
-    </div>
-    <div className="text-sm text-muted-foreground">{label}</div>
-  </div>
-);
-
-const vulnerabilities = [
-  'SQL Injection blocked in auth.py',
-  'XSS vulnerability detected in render.js',
-  'Unsafe deserialization in api.php',
-  'Path traversal caught in upload.ts',
-  'CSRF token missing in form.jsx',
-  'Hardcoded credentials removed',
-  'Buffer overflow prevented',
-  'Race condition identified',
+const statusMessages = [
+  'Sentinel_Engine: Operational',
+  'Vulnerability_Scan: Listening',
+  'Cloud_Node: Asia-South-1',
+  'Last_Scan: 4s ago',
+  'Security_Patch: v2.4.1',
+  'Threat_Level: Minimal',
+  'Database: Indexed',
+  'Uptime: 99.99%'
 ];
