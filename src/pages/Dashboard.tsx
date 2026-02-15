@@ -1,325 +1,248 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 import { 
   Shield, 
+  LayoutDashboard, 
   Upload, 
-  BarChart3, 
-  FileSearch, 
   MessageSquare, 
-  Settings,
-  Home,
-  AlertTriangle,
+  Settings, 
+  Terminal, 
+  Cpu, 
+  AlertTriangle, 
+  Activity, 
+  BarChart3, 
+  Search, 
   ChevronRight,
-  Github
+  ShieldCheck,
+  Zap,
+  Globe,
+  Clock
 } from 'lucide-react';
+import { 
+  Radar, 
+  RadarChart, 
+  PolarGrid, 
+  PolarAngleAxis, 
+  Radar as RadarArea, 
+  ResponsiveContainer 
+} from 'recharts';
+import JSZip from 'jszip';
 import { Button } from '../components/ui/button';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
-import { Card } from '../components/ui/card';
-import { Separator } from '../components/ui/separator';
-
-type DashboardView = 'overview' | 'upload' | 'analysis' | 'chat' | 'settings';
 
 export const Dashboard: React.FC = () => {
-  const [activeView, setActiveView] = useState<DashboardView>('overview');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanResults, setScanResults] = useState<{name: string, risk: number}[]>([]);
+  const [radarData, setRadarData] = useState<any[]>([]);
+  const [logs, setLogs] = useState<string[]>(["[SYSTEM] Initializing Sentinel Core...", "[AUTH] Identity: Anonymous_0x22F"]);
+
+  // Functional: Handle ZIP Upload and generate scan data
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    const zip = new JSZip();
+    
+    try {
+      const content = await zip.loadAsync(file);
+      const files = Object.keys(content.files).filter(path => !content.files[path].dir);
+      
+      const mockResults = files.map(f => ({
+        name: f.split('/').pop() || f,
+        risk: Math.random() * 100
+      }));
+
+      const mockRadar = [
+        { subject: 'Injection', A: Math.random() * 150 },
+        { subject: 'Auth', A: Math.random() * 150 },
+        { subject: 'Logic', A: Math.random() * 150 },
+        { subject: 'Data Leak', A: Math.random() * 150 },
+        { subject: 'Config', A: Math.random() * 150 },
+      ];
+
+      setTimeout(() => {
+        setScanResults(mockResults);
+        setRadarData(mockRadar);
+        setIsScanning(false);
+        setActiveTab('analysis');
+        setLogs(prev => [`[SUCCESS] Analysis complete for ${file.name}`, ...prev]);
+      }, 2000);
+    } catch (e) {
+      setLogs(prev => [`[ERROR] Decryption failed for payload`, ...prev]);
+      setIsScanning(false);
+    }
+  };
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <aside className="w-64 h-screen flex flex-col border-r border-border/50 bg-card/30 backdrop-blur-sm">
-        {/* Logo */}
-        <div className="h-16 border-b border-border/50 flex items-center px-6">
-          <Shield className="h-6 w-6 text-primary mr-2" />
-          <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            SentinelAI
-          </span>
+    <div className="min-h-screen bg-background text-foreground font-mono flex flex-col">
+      <div className="scanline-overlay"></div>
+
+      <header className="border-b border-border/40 p-4 flex justify-between items-center bg-background/50 backdrop-blur-md z-50">
+        <div className="flex items-center gap-2">
+          <Shield className="h-5 w-5 text-primary" />
+          <span className="font-bold tracking-tighter uppercase text-sm">SentinelAI <span className="text-primary">/ System</span></span>
         </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
-          <NavItem
-            icon={<Home className="h-4 w-4" />}
-            label="Overview"
-            active={activeView === 'overview'}
-            onClick={() => setActiveView('overview')}
-          />
-          <NavItem
-            icon={<Upload className="h-4 w-4" />}
-            label="Upload Code"
-            active={activeView === 'upload'}
-            onClick={() => setActiveView('upload')}
-          />
-          <NavItem
-            icon={<BarChart3 className="h-4 w-4" />}
-            label="Risk Analysis"
-            active={activeView === 'analysis'}
-            onClick={() => setActiveView('analysis')}
-          />
-          <NavItem
-            icon={<MessageSquare className="h-4 w-4" />}
-            label="AI Chat"
-            active={activeView === 'chat'}
-            onClick={() => setActiveView('chat')}
-          />
-          
-          <Separator className="my-4" />
-          
-          <NavItem
-            icon={<Settings className="h-4 w-4" />}
-            label="Settings"
-            active={activeView === 'settings'}
-            onClick={() => setActiveView('settings')}
-          />
-        </nav>
-
-        {/* User Section */}
-        <div className="p-4 border-t border-border/50">
-          <div className="glass-card rounded-lg p-3 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold">
-              A
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium truncate">Admin User</div>
-              <div className="text-xs text-muted-foreground">Pro Plan</div>
-            </div>
+        <div className="flex items-center gap-6">
+          <div className="hidden md:block text-[9px] text-muted-foreground uppercase tracking-widest">
+            Identity: <span className="text-primary">ANON_USER_0x22F</span>
           </div>
+          <ThemeSwitcher />
         </div>
-      </aside>
+      </header>
 
-      {/* Main Content */}
-      <div className="flex-1 h-screen flex flex-col">
-        {/* Header */}
-        <header className="h-16 border-b border-border/50 flex items-center justify-between px-6 backdrop-blur-sm">
-          <div>
-            <h1 className="text-2xl font-bold">
-              {activeView === 'overview' && 'Dashboard Overview'}
-              {activeView === 'upload' && 'Upload Repository'}
-              {activeView === 'analysis' && 'Risk Analysis'}
-              {activeView === 'chat' && 'AI Code Assistant'}
-              {activeView === 'settings' && 'Settings'}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {activeView === 'overview' && 'Monitor your code health in real-time'}
-              {activeView === 'upload' && 'Upload code via ZIP or GitHub URL'}
-              {activeView === 'analysis' && 'View bug density and vulnerability reports'}
-              {activeView === 'chat' && 'Get AI-powered code improvement suggestions'}
-              {activeView === 'settings' && 'Configure your SentinelAI preferences'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeSwitcher />
-          </div>
-        </header>
+      <div className="flex flex-1 overflow-hidden">
+        <aside className="w-16 md:w-60 border-r border-border/40 bg-card/10 flex flex-col">
+          <nav className="flex-1 p-3 space-y-3">
+            <NavBtn id="overview" icon={<LayoutDashboard className="h-4 w-4" />} label="Overview" active={activeTab} onClick={setActiveTab} />
+            <NavBtn id="analysis" icon={<Activity className="h-4 w-4" />} label="Risk_Map" active={activeTab} onClick={setActiveTab} />
+            <NavBtn id="upload" icon={<Upload className="h-4 w-4" />} label="Scanner" active={activeTab} onClick={setActiveTab} />
+            <NavBtn id="chat" icon={<MessageSquare className="h-4 w-4" />} label="AI_Chat" active={activeTab} onClick={setActiveTab} />
+          </nav>
+        </aside>
 
-        {/* Content Area */}
-        <main className="flex-1 overflow-y-auto p-6">
-          <motion.div
-            key={activeView}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {activeView === 'overview' && <OverviewContent />}
-            {activeView === 'upload' && <UploadContent />}
-            {activeView === 'analysis' && <AnalysisContent />}
-            {activeView === 'chat' && <ChatContent />}
-            {activeView === 'settings' && <SettingsContent />}
-          </motion.div>
+        <main className="flex-1 p-6 overflow-y-auto bg-background/20">
+          <div className="terminal-window h-full flex flex-col max-w-6xl mx-auto">
+            <div className="terminal-header">
+              <div className="flex gap-1.5"><div className="w-2 h-2 rounded-full bg-border"></div><div className="w-2 h-2 rounded-full bg-border"></div></div>
+              <span>exec::{activeTab}.bin</span>
+              <Cpu className={`h-3 w-3 text-primary ${isScanning ? 'animate-spin' : 'animate-pulse'}`} />
+            </div>
+            
+            <div className="flex-1 p-6 overflow-y-auto">
+              {activeTab === 'overview' && (
+                <div className="space-y-6">
+                  {/* Overview Stats Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <StatBox label="Sentinel Score" value={scanResults.length ? "84/100" : "N/A"} icon={<ShieldCheck className="h-4 w-4" />} color="text-primary" />
+                    <StatBox label="Files Scanned" value={scanResults.length.toString()} icon={<Zap className="h-4 w-4" />} color="text-yellow-500" />
+                    <StatBox label="System Health" value="Optimal" icon={<Activity className="h-4 w-4" />} color="text-green-500" />
+                    <StatBox label="Active Node" value="Global-V1" icon={<Globe className="h-4 w-4" />} color="text-blue-500" />
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Live System Log */}
+                    <div className="lg:col-span-2 terminal-window p-4 bg-black/40 h-64 flex flex-col">
+                      <div className="flex justify-between mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                        <span>Live_System_Log</span>
+                        <Clock className="h-3 w-3" />
+                      </div>
+                      <div className="flex-1 overflow-y-auto font-mono text-[11px] space-y-1 scrollbar-thin">
+                        {logs.map((log, i) => (
+                          <div key={i} className={log.includes('[ERROR]') ? 'text-destructive' : 'text-primary/80'}>
+                            {`> ${log}`}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Quick Action Box */}
+                    <div className="terminal-window p-6 flex flex-col justify-center items-center text-center bg-primary/5">
+                      <Upload className="h-10 w-10 text-primary mb-4 opacity-50" />
+                      <h3 className="text-xs font-bold uppercase mb-2">Instant Scan</h3>
+                      <p className="text-[10px] text-muted-foreground mb-4 uppercase leading-relaxed">No login required. Start a new code audit session.</p>
+                      <Button onClick={() => setActiveTab('upload')} size="sm" className="w-full text-[10px] h-10 font-bold tracking-widest uppercase">
+                        Open Scanner
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'upload' && (
+                <div className="h-full flex flex-col items-center justify-center">
+                  <div className="terminal-window p-12 w-full max-w-xl text-center space-y-8 bg-primary/5">
+                    <Upload className={`h-16 w-16 mx-auto ${isScanning ? 'animate-bounce text-primary' : 'text-muted-foreground'}`} />
+                    <div className="space-y-4">
+                      <h2 className="text-xl font-bold uppercase tracking-widest">{isScanning ? 'Decrypting Source...' : 'Awaiting Payload'}</h2>
+                      <input type="file" id="zip-upload" accept=".zip" className="hidden" onChange={handleFileUpload} />
+                      <Button asChild className="w-full py-8 text-lg font-bold">
+                        <label htmlFor="zip-upload" className="cursor-pointer uppercase">Upload Archive (.zip)</label>
+                      </Button>
+                      <div className="relative group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <input type="text" placeholder="github.com/user/repo" className="w-full bg-background border border-border rounded p-3 pl-10 text-xs focus:border-primary/50 focus:outline-none" />
+                        <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-primary cursor-pointer" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'analysis' && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="terminal-window p-6">
+                    <div className="flex justify-between mb-4">
+                      <span className="text-[10px] font-bold uppercase flex items-center gap-2"><BarChart3 className="h-3 w-3" /> Risk_Hotspots</span>
+                      <span className="text-[9px] text-primary">{scanResults.length} Files Indexed</span>
+                    </div>
+                    <div className="grid grid-cols-10 gap-1">
+                      {(scanResults.length > 0 ? scanResults : [...Array(100)]).map((res, i) => (
+                        <div 
+                          key={i} 
+                          className="aspect-square rounded-sm transition-all duration-300 hover:scale-125 hover:z-10 cursor-help"
+                          style={{ 
+                            backgroundColor: `hsl(var(--primary) / ${res?.risk ? res.risk / 100 : 0.1})`,
+                            boxShadow: res?.risk > 80 ? '0 0 8px hsl(var(--primary))' : 'none'
+                          }}
+                          title={res?.name || "System_Idle"}
+                        ></div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="terminal-window p-6 h-[400px]">
+                    <span className="text-[10px] font-bold uppercase flex items-center gap-2 mb-4"><AlertTriangle className="h-3 w-3" /> Threat_Radar</span>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart data={radarData.length > 0 ? radarData : initialRadarData}>
+                        <PolarGrid stroke="hsl(var(--border))" />
+                        <PolarAngleAxis dataKey="subject" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                        <RadarArea name="Security" dataKey="A" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.4} />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </main>
       </div>
+
+      <footer className="border-t border-border/40 bg-card/80 py-2 h-8 flex items-center overflow-hidden z-50">
+        <div className="ticker-scroll">
+          {["System: Optimal", "Scan_Core: Active", `Session_Logs: ${logs.length}`, "Mode: Anonymous"].map((text, i) => (
+            <div key={i} className="flex items-center gap-2 px-10">
+              <span className="h-1 w-1 rounded-full bg-primary"></span>
+              <span className="text-[8px] uppercase tracking-[0.3em] text-muted-foreground">{text}</span>
+            </div>
+          ))}
+        </div>
+      </footer>
     </div>
   );
 };
 
-const NavItem: React.FC<{
-  icon: React.ReactNode;
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}> = ({ icon, label, active, onClick }) => (
+const NavBtn = ({ id, icon, label, active, onClick }: any) => (
   <button
-    onClick={onClick}
-    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
-      active
-        ? 'bg-primary/10 text-primary border border-primary/20'
-        : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+    onClick={() => onClick(id)}
+    className={`w-full flex items-center gap-3 p-3 rounded transition-all ${
+      active === id ? 'bg-primary/10 text-primary border-l-2 border-primary' : 'text-muted-foreground hover:bg-muted/30'
     }`}
   >
     {icon}
-    <span className="text-sm font-medium">{label}</span>
-    {active && <ChevronRight className="h-4 w-4 ml-auto" />}
+    <span className="hidden md:block text-[10px] uppercase tracking-widest font-bold">{label}</span>
   </button>
 );
 
-const OverviewContent: React.FC = () => (
-  <div className="space-y-6">
-    {/* Stats Grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <DashboardCard
-        title="Code Health"
-        value="87/100"
-        change="+5"
-        icon={<Shield className="h-5 w-5 text-primary" />}
-        trend="up"
-      />
-      <DashboardCard
-        title="Vulnerabilities"
-        value="3"
-        change="-2"
-        icon={<AlertTriangle className="h-5 w-5 text-destructive" />}
-        trend="down"
-      />
-      <DashboardCard
-        title="Files Scanned"
-        value="1,247"
-        change="+124"
-        icon={<FileSearch className="h-5 w-5 text-secondary" />}
-        trend="up"
-      />
-      <DashboardCard
-        title="Bug Risk Score"
-        value="Low"
-        change="Stable"
-        icon={<BarChart3 className="h-5 w-5 text-accent" />}
-        trend="neutral"
-      />
+const StatBox = ({ label, value, icon, color }: any) => (
+  <div className="terminal-window p-4 flex flex-col bg-card/10">
+    <div className={`flex items-center gap-2 mb-2 text-[10px] uppercase tracking-widest font-bold ${color}`}>
+      {icon} {label}
     </div>
-
-    {/* Recent Activity */}
-    <Card className="glass-card p-6">
-      <h2 className="text-lg font-bold mb-4">Recent Scans</h2>
-      <div className="space-y-3">
-        {[
-          { repo: 'frontend-app', time: '2 mins ago', status: 'completed' },
-          { repo: 'api-service', time: '1 hour ago', status: 'completed' },
-          { repo: 'auth-module', time: '3 hours ago', status: 'completed' },
-        ].map((scan, i) => (
-          <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-border/50 hover:bg-muted/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <Github className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <div className="font-medium">{scan.repo}</div>
-                <div className="text-sm text-muted-foreground">{scan.time}</div>
-              </div>
-            </div>
-            <div className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-              {scan.status}
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
+    <div className="text-2xl font-black tracking-tighter">{value}</div>
   </div>
 );
 
-const UploadContent: React.FC = () => (
-  <div className="max-w-3xl mx-auto space-y-6">
-    {/* Drag & Drop Zone */}
-    <Card className="glass-card p-12 border-2 border-dashed border-primary/20 hover:border-primary/50 transition-all cursor-pointer breathing-border">
-      <div className="text-center">
-        <Upload className="h-16 w-16 text-primary mx-auto mb-4" />
-        <h3 className="text-xl font-bold mb-2">Drop your ZIP file here</h3>
-        <p className="text-muted-foreground mb-4">or click to browse</p>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-          Select Files
-        </Button>
-      </div>
-    </Card>
-
-    {/* GitHub URL Input */}
-    <div className="relative">
-      <div className="text-center text-muted-foreground mb-4">OR</div>
-      <Card className="glass-card p-6">
-        <h3 className="text-lg font-bold mb-4">Import from GitHub</h3>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="https://github.com/username/repo"
-            className="flex-1 px-4 py-2 rounded-lg bg-background border border-border/50 focus:border-primary focus:outline-none"
-          />
-          <Button className="neural-scanning">
-            <Github className="mr-2 h-4 w-4" />
-            Import
-          </Button>
-        </div>
-      </Card>
-    </div>
-  </div>
-);
-
-const AnalysisContent: React.FC = () => (
-  <div className="space-y-6">
-    <Card className="glass-card p-6">
-      <h2 className="text-lg font-bold mb-4">Bug Density Heatmap</h2>
-      <div className="h-64 flex items-center justify-center text-muted-foreground border border-border/20 rounded-lg">
-        Heatmap visualization will appear here
-      </div>
-    </Card>
-    <Card className="glass-card p-6">
-      <h2 className="text-lg font-bold mb-4">Vulnerability Radar</h2>
-      <div className="h-64 flex items-center justify-center text-muted-foreground border border-border/20 rounded-lg">
-        Radar chart will appear here
-      </div>
-    </Card>
-  </div>
-);
-
-const ChatContent: React.FC = () => (
-  <Card className="glass-card p-6 h-[calc(100vh-200px)] flex flex-col">
-    <h2 className="text-lg font-bold mb-4">AI Code Assistant</h2>
-    <div className="flex-1 border border-border/20 rounded-lg p-4 mb-4 overflow-y-auto">
-      <p className="text-muted-foreground text-center mt-20">
-        Ask me anything about your code...
-      </p>
-    </div>
-    <div className="flex gap-2">
-      <input
-        type="text"
-        placeholder="How do I fix the security risk in auth.py?"
-        className="flex-1 px-4 py-2 rounded-lg bg-background border border-border/50 focus:border-primary focus:outline-none"
-      />
-      <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-        Send
-      </Button>
-    </div>
-  </Card>
-);
-
-const SettingsContent: React.FC = () => (
-  <Card className="glass-card p-6 max-w-2xl">
-    <h2 className="text-lg font-bold mb-4">Settings</h2>
-    <div className="space-y-4">
-      <div>
-        <label className="text-sm font-medium mb-2 block">Theme Preference</label>
-        <p className="text-sm text-muted-foreground">Select your preferred theme from the theme switcher in the header</p>
-      </div>
-      <Separator />
-      <div>
-        <label className="text-sm font-medium mb-2 block">Notification Preferences</label>
-        <p className="text-sm text-muted-foreground">Configure how you want to be notified about vulnerabilities</p>
-      </div>
-    </div>
-  </Card>
-);
-
-const DashboardCard: React.FC<{
-  title: string;
-  value: string;
-  change: string;
-  icon: React.ReactNode;
-  trend: 'up' | 'down' | 'neutral';
-}> = ({ title, value, change, icon, trend }) => (
-  <Card className="glass-card-hover p-6">
-    <div className="flex items-center justify-between mb-4">
-      <span className="text-sm text-muted-foreground">{title}</span>
-      {icon}
-    </div>
-    <div className="text-3xl font-bold mb-2">{value}</div>
-    <div className={`text-sm ${
-      trend === 'up' ? 'text-accent' : 
-      trend === 'down' ? 'text-destructive' : 
-      'text-muted-foreground'
-    }`}>
-      {change} from last scan
-    </div>
-  </Card>
-);
+const initialRadarData = [
+  { subject: 'Injection', A: 0 }, { subject: 'Auth', A: 0 }, { subject: 'Logic', A: 0 }, { subject: 'Data Leak', A: 0 }, { subject: 'Config', A: 0 },
+];
